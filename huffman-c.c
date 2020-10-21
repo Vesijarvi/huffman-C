@@ -1,5 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
+#include<string.h>
 
 int main(int argc, char *argv[]){
 	// argc: counter of arguments
@@ -12,11 +13,12 @@ int main(int argc, char *argv[]){
 	fread(head, sizeof(head), 1, f);
 
 	// if the file is PNG
-	if (!memcmp(signature, head, 8))
+	if (!memcmp(png_head, head, 8))
 	{
-    		//...
+		printf("Read file success\n");
+	}else{
+		printf("Not PNG\n");
 	}
-	
 
 	fclose(f);
 	return 0;
