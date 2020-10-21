@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include<errno.h>
 
 int main(int argc, char *argv[]){
 	// argc: counter of arguments
@@ -17,7 +18,7 @@ int main(int argc, char *argv[]){
 	{
 		printf("Read file success\n");
 	}else{
-		printf("Not PNG\n");
+		fprintf(stderr,"%s is not a PNG file, error = %d\n", argv[1], errno);
 	}
 
 	fclose(f);
