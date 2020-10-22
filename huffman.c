@@ -25,7 +25,7 @@ typedef struct {
 } node_t;
 
 void determine_frequency(FILE *f) {
-    char c;
+    int c;
     // ensure rgb cnt not overflow
 	int i=0;
 	while ((c=fgetc(f))!=EOF) {
