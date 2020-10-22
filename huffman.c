@@ -27,20 +27,21 @@ typedef struct {
 void determine_frequency(FILE *f) {
     char c;
     // ensure rgb cnt not overflow
-	while ((c=fgetc(f))!=EOF ) {
+	int i=0;
+	while ((c=fgetc(f))!=EOF) {
 		if(rgb_cnt<0){
 			perror("File is like your mom! Too Fat!\n");
 			exit(1);
 		}
         frequency[(int)c]++;
         rgb_cnt++;
-		printf("[%x:%d]\n",c,rgb_cnt);
+		printf("0x%02X ",c);
+		if( !(++i % 16) ) putc('\n', stdout);
     }
     for (int i = 0; i < (GRAY_SCALE-1); i++){
         if (frequency[i] > 0)
             active_codeword_cnt++;
 	}
-	printf("out");
 }
 
 void init() {
