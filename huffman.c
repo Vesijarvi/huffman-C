@@ -20,7 +20,6 @@ unsigned int original_size = 0;
 
 
 typedef struct {
-
 	int index;	/* positive index means internal node; 
 				   negative index means a leaf (alphabet) node. */
 	unsigned int weight;
@@ -56,15 +55,26 @@ void determine_frequency(FILE *f) {
 	printf("\nFrequency: %d\n",active_codeword_cnt);
 }
 
-void init() {
-    frequency = (int *)
-		calloc(2 * GRAY_SCALE, sizeof(int));
-}
-
 void init(){
 	frequency = (int *)calloc(2*GRAY_SCALE, sizeof(int));
-	leaf_index = frequency + num_alphabets - 1;
+	leaf_index = frequency + GRAY_SCALE - 1;
 }
+
+/* Allocate space for the coding tree nodes 
+	and parent indexlook-up table */
+void allocate_tree(){
+	nodes = (node_t *)
+		calloc(2*active_codeword_cnt,sizeof(node_t));
+	parent_index = (int *)
+		calloc(active_codeword_cnt, sizeof(int));
+}
+
+void finalise() {
+    free(parent_index);
+    free(frequency);
+    free(nodes);
+}
+
 int encode(const char *in_file, const char *out_file){
 	FILE *fin, *fout;
 	if ((fin = fopen(in_file, "rb")) == NULL) {
