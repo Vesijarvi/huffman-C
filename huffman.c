@@ -9,20 +9,31 @@
 
 #define GRAY_SCALE 256
 
-unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+/* singature for PNG */
+// unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 
-/* global codeword related */
 int *frequency = NULL;
 int rgb_cnt = 0;	
 int active_codeword_cnt = 0;
+/* the number of bytes in the original input data stream */ 
+unsigned int original_size = 0;	
+
+
+typedef struct {
+
+	int index;	/* positive index means internal node; 
+				   negative index means a leaf (alphabet) node. */
+	unsigned int weight;
+} node_t;
+
+/* data structure to */
+node_t *nodes = NULL;
+int num_nodes = 0;
+int *leaf_index = NULL;
+int *parent_index = NULL;
 
 int *stack;
 int stack_top;
-
-typedef struct {
-	int index;
-	unsigned int weight;
-} node_t;
 
 void determine_frequency(FILE *f) {
     int c;
@@ -42,6 +53,7 @@ void determine_frequency(FILE *f) {
         if (frequency[i] > 0)
             active_codeword_cnt++;
 	}
+	printf("\nFrequency: %d\n",active_codeword_cnt);
 }
 
 void init() {
@@ -49,6 +61,10 @@ void init() {
 		calloc(2 * GRAY_SCALE, sizeof(int));
 }
 
+void init(){
+	frequency = (int *)calloc(2*GRAY_SCALE, sizeof(int));
+	leaf_index = frequency + num_alphabets - 1;
+}
 int encode(const char *in_file, const char *out_file){
 	FILE *fin, *fout;
 	if ((fin = fopen(in_file, "rb")) == NULL) {
@@ -60,17 +76,22 @@ int encode(const char *in_file, const char *out_file){
 		fclose(fin);
 		return 1;
 	}
-	// read PNG signature 		
-	unsigned char head[8];
-	fread(head, sizeof(head), 1, fin);
-	if (memcmp(signature, head, 8)){
-		perror("Input file is not PNG format\n");
-		return 1;	/* bad signature */
-	}
+	/* 
+	If we want better compression, 
+	it is better we not check file type 
+	(i.e. the signature fo the PNG file)
+	read PNG signature 	
+	*/	
+	// unsigned char head[8];
+	// fread(head, sizeof(head), 1, fin);
+	// if (memcmp(signature, head, 8)){
+	// 	perror("Input file is not PNG format\n");
+    //	return 1;	/* bad signature */
+	// }
 	determine_frequency(fin);
-	// stack = (int*)calloc(active_codeword_cnt-1, sizeof(int));
+	stack = (int*)calloc(active_codeword_cnt-1, sizeof(int));
 
-	// allocate_tree();
+	allocate_tree();
 
     // add_leaves();
     // write_header(fout);
@@ -97,12 +118,17 @@ int decode(const char *in_file, const char *out_file){
 		return 1;
 	}
 
-	unsigned char head[8];
-	fread(head, sizeof(head), 1, fin);
-	if (memcmp(signature, head, 8)){
-		perror("Input file is not PNG format\n");
-		return 1;
-	}
+
+	// If we want better compression, 
+	// it is better we not check file type 
+	// (i.e. the signature fo the PNG file)
+
+	// unsigned char head[8];
+	// fread(head, sizeof(head), 1, fin);
+	// if (memcmp(signature, head, 8)){
+	// 	perror("Input file is not PNG format\n");
+	// 	return 1;
+	// }
 
 	return 0;
 }
