@@ -219,9 +219,6 @@ int decode(const char *in_file, const char *out_file){
 		fclose(fin);
 		return FILE_OPEN_FAIL;
 	}
-	// If we want better compression, 
-	// it is better we not check file type 
-	// (i.e. the signature fo the PNG file)
 
 	// unsigned char head[8];
 	// fread(head, sizeof(head), 1, fin);
