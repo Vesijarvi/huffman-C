@@ -68,8 +68,8 @@ void determine_frequency(FILE *f) {
 		}
         frequency[c]++;
         rgb_cnt++;
-		printf("0x%02X ",c);
-		if( !(++i % 16) ) putc('\n', stdout);
+		// printf("0x%02X ",c);
+		// if( !(++i % 16) ) putc('\n', stdout);
     }
     for (int i = 0; i < (GRAY_SCALE-1); i++){
         if (frequency[i] > 0)
@@ -130,8 +130,8 @@ void build_tree() {
     while (free_index < num_nodes) {
         a = free_index++;
         b = free_index++;
-        // index = add_node(b/2,
-        //     nodes[a].weight + nodes[b].weight);
+        index = add_node(b/2,
+             nodes[a].weight + nodes[b].weight);
         parent_index[b/2] = index;
     }
 }
