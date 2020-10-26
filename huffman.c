@@ -88,7 +88,7 @@ void allocate_tree(){
 }
 
 void finalise() {
-    printf("\n----- Debugg message -----\n");
+    // printf("\n----- Debugg message -----\n");
     free(parent_index); //munmap_chunk()
     free(frequency);
     free(nodes); //munmap_chunk()
