@@ -69,7 +69,7 @@ void determine_frequency(FILE *f) {
         if (frequency[i] > 0)
             num_active++;
 	}
-	// printf("\nFrequency: %d\n",num_active);
+	printf("\nNumber of active %d\n",num_active);
 }
 
 /* Allocate space for the coding tree nodes 
