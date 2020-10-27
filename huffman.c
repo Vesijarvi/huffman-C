@@ -137,7 +137,9 @@ void build_tree() {
 }
 
 void print_node(void){
+    printf("------------\n");
     printf("Node Checker\n");
+    printf("------------\n");
     int i = 0;
     int j = 0;
     while(i < num_nodes){
