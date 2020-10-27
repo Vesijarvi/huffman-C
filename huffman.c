@@ -88,10 +88,6 @@ void allocate_tree(){
 }
 
 void finalise() {
-<<<<<<< HEAD
-=======
-    // printf("\n----- Debugg message -----\n");
->>>>>>> f73c1a351c0901c3621c9535c57af48670a53f62
     free(parent_index); //munmap_chunk()
     free(frequency);
     free(nodes); //munmap_chunk()
@@ -140,12 +136,12 @@ void build_tree() {
 
 }
 
-void print_frequency(void){
-    printf("Frequency");
+void print_node(void){
+    printf("Node Checker\n");
     int i = 0;
     int j = 0;
-    while(i < GRAY_SCALE){
-        printf("[%03d:%03d]",i,frequency[i]);
+    while(i < num_nodes){
+        printf("[i:%d  index:%d, weight:%d]\n",i,nodes[i].index, nodes[i].weight);
         i++;
     }
 }
@@ -194,7 +190,11 @@ int encode(const char *in_file, const char *out_file){
     add_leaves();
     write_header(fout);
     build_tree();
-    print_frequency();
+
+    // debbug
+    printf("\n");
+    print_node();
+
     fseek(fin, 0, SEEK_SET);    /* same as rewind(fin) */
     int c;
     while ((c = fgetc(fin)) != EOF)
