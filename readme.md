@@ -8,9 +8,9 @@ This program is encoder and decoder for compressing.
 
 Compile
 
-``````````````````````````````````````````````````````````````````````````````````typescript
+```
 $ gcc -o huffman huffman.c
-``````````````````````````````````````````````````````````````````````````````````
+```
 
 Encode 
 
