@@ -141,7 +141,7 @@ void print_node(void){
     int i = 0;
     int j = 0;
     while(i < num_nodes){
-        printf("[i:%c  index:%d, weight:%d]\n",i,nodes[i].index, nodes[i].weight);
+        printf("[i:%d  index:%d, weight:%d]\n",i,nodes[i].index, nodes[i].weight);
         i++;
     }
 }
