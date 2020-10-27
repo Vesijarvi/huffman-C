@@ -68,8 +68,8 @@ void determine_frequency(FILE *f) {
 		}
         frequency[c]++;
         rgb_cnt++;
-		// printf("0x%02X ",c);
-		// if( !(++i % 16) ) putc('\n', stdout);
+		printf("0x%02X ",c);
+		if( !(++i % 16) ) putc('\n', stdout);
     }
     for (int i = 0; i < (GRAY_SCALE-1); i++){
         if (frequency[i] > 0)
@@ -88,7 +88,6 @@ void allocate_tree(){
 }
 
 void finalise() {
-    printf("\n----- Debugg message -----\n");
     free(parent_index); //munmap_chunk()
     free(frequency);
     free(nodes); //munmap_chunk()
