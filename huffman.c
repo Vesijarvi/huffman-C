@@ -18,7 +18,6 @@
 // unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 
 int *frequency = NULL;
-int rgb_cnt = 0;	
 int num_active = 0;
 /* the number of bytes in the original input data stream */ 
 unsigned int original_size = 0;	
@@ -59,19 +58,14 @@ void init(){
 
 void determine_frequency(FILE *f) {
     int c;
-    // ensure rgb cnt not overflow
 	int i=0;
 	while ((c=fgetc(f))!=EOF) {
-		if(rgb_cnt<0){
-			perror("File is like your mom! Too Fat!\n");
-			exit(1);
-		}
-        frequency[c]++;
-        rgb_cnt++;
+        ++frequency[c];
+        ++original_size;
 		printf("0x%02X ",c);
 		if( !(++i % 16) ) putc('\n', stdout);
     }
-    for (int i = 0; i < (GRAY_SCALE-1); i++){
+    for (c = 0; c < GRAY_SCALE; ++c){
         if (frequency[i] > 0)
             num_active++;
 	}
@@ -107,6 +101,9 @@ int add_node(int index, int weight) {
 	/* add new node to its rightful place */
     ++i;
     nodes[i].index = index;
+    // SUMMARY: AddressSanitizer: 
+    // heap-buffer-overflow huffman.c:109 in add_node
+    // Shadow bytes around the buggy address:
     nodes[i].weight = weight;
     if (index < 0) 
         leaf_index[-index] = i;
@@ -213,6 +210,9 @@ void decode_bit_stream(FILE *fin, FILE *fout) {
         if (bit == -1)
             break;
         node_index = nodes[node_index * 2 - bit].index;
+        // SUMMARY: AddressSanitizer: 
+        // heap-buffer-overflow huffman.c:215 
+        // in decode_bit_stream Shadow bytes around the buggy address:
         if (node_index < 0) {
             char c = -node_index - 1;
             fwrite(&c, 1, 1, fout);
