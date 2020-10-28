@@ -1,11 +1,10 @@
 CC=gcc
 CFLAGS=-fsanitize=address -g
 
-huffman: huffman.c
+huffman:huffman.c
+	${cc} -o huffman huffman.c
+
+saint: huffman.c
 	${CC} ${CFLAGS} -o huff-sanit huffman.c
-
-huffman1: huffman1.c
-	${CC} ${CFLAGS} -o huff-sanit huffman1.c
-
 clean:
 	rm huffman
