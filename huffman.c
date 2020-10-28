@@ -17,9 +17,9 @@
 /* singature for PNG */
 // unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 
+int num_alphabets = 256;
+int num_active = 0; /* the number of bytes in the original input data stream */ 
 int *frequency = NULL;
-int num_active = 0;
-/* the number of bytes in the original input data stream */ 
 unsigned int original_size = 0;	
 
 typedef struct {
@@ -52,8 +52,8 @@ int write_bit(FILE *f, int bit);
 int flush_buffer(FILE *f);
 
 void init(){
-	frequency = (int *)calloc(2*GRAY_SCALE, sizeof(int));
-	leaf_index = frequency + GRAY_SCALE - 1;
+	frequency = (int *)calloc(2*num_alphabets, sizeof(int));
+	leaf_index = frequency + num_alphabets - 1;
 }
 
 void determine_frequency(FILE *f) {
@@ -65,9 +65,9 @@ void determine_frequency(FILE *f) {
 		printf("0x%02X ",c);
 		if( !(++i % 16) ) putc('\n', stdout);
     }
-    for (c = 0; c < GRAY_SCALE; ++c){
+    for (c = 0; c < num_alphabets; ++c){
         if (frequency[i] > 0)
-            num_active++;
+            ++num_active;
 	}
 	printf("\nNumber of active %d\n",num_active);
 }
@@ -101,9 +101,6 @@ int add_node(int index, int weight) {
 	/* add new node to its rightful place */
     ++i;
     nodes[i].index = index;
-    // SUMMARY: AddressSanitizer: 
-    // heap-buffer-overflow huffman.c:109 in add_node
-    // Shadow bytes around the buggy address:
     nodes[i].weight = weight;
     if (index < 0) 
         leaf_index[-index] = i;
@@ -114,7 +111,7 @@ int add_node(int index, int weight) {
 
 void add_leaves() {
     int i, freq;
-    for (i = 0; i < GRAY_SCALE; ++i) {
+    for (i = 0; i < num_alphabets; ++i) {
         freq = frequency[i];
         if (freq > 0)
             add_node(-(i + 1), freq);
