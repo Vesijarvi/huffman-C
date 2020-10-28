@@ -12,9 +12,9 @@
 #define END_OF_FILE -1
 #define MEM_ALLOC_FAIL -1
 
-
 /* singature for PNG */
-// unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+// unsigned char signature[8] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A,
+// 0x0A};
 
 int num_alphabets = 256;
 int num_active = 0;
@@ -23,8 +23,8 @@ int *frequency = NULL;
 unsigned int original_size = 0;
 
 typedef struct {
-    int index;  /* positive index means internal node; 
-				   negative index means a leaf (alphabet) node  */
+    int index; /* positive index means internal node;
+                                  negative index means a leaf (alphabet) node */
     unsigned int weight;
 } node_t;
 
@@ -50,53 +50,55 @@ int read_bit(FILE *f);
 int write_bit(FILE *f, int bit);
 int flush_buffer(FILE *f);
 void decode_bit_stream(FILE *fin, FILE *fout);
-int decode(const char* ifile, const char *ofile);
+int decode(const char *ifile, const char *ofile);
 void encode_alphabet(FILE *fout, int character);
-int encode(const char* ifile, const char *ofile);
+int encode(const char *ifile, const char *ofile);
 void build_tree();
 void add_leaves();
 int add_node(int index, int weight);
 void finalise();
 void init();
 
-void determine_frequency(FILE *f) {
+void determine_frequency(FILE *f)
+{
     int c;
-	int i;
+    int i;
     while ((c = fgetc(f)) != EOF) {
         ++frequency[c];
         ++original_size;
-        printf("0x%02x ",c);
-        if(!(++i%16))
-            putc('\n',stdout);
+        printf("0x%02x ", c);
+        if (!(++i % 16))
+            putc('\n', stdout);
     }
     for (c = 0; c < num_alphabets; ++c)
         if (frequency[c] > 0)
             ++num_active;
-    printf("\nnum_active:%d  original_size: %d \n",num_active,original_size);
+    printf("\nnum_active:%d  original_size: %d \n", num_active, original_size);
 }
 
-void init() {
-    frequency = (int *)
-        calloc(2 * num_alphabets, sizeof(int));
+void init()
+{
+    frequency = (int *) calloc(2 * num_alphabets, sizeof(int));
     leaf_index = frequency + num_alphabets - 1;
 }
 /* Allocate space for tree nodes and parent index lookup table */
-void allocate_tree() {
-    nodes = (node_t *)
-        calloc(2 * num_active, sizeof(node_t));
-    parent_index = (int *)
-        calloc(num_active, sizeof(int));
+void allocate_tree()
+{
+    nodes = (node_t *) calloc(2 * num_active, sizeof(node_t));
+    parent_index = (int *) calloc(num_active, sizeof(int));
 }
 
-void finalise() {
+void finalise()
+{
     free(parent_index);
     free(frequency);
     free(nodes);
 }
 
-int add_node(int index, int weight) {
+int add_node(int index, int weight)
+{
     int i = num_nodes++;
-	/* move existing nodes with larger weights to the right */
+    /* move existing nodes with larger weights to the right */
     while (i > 0 && nodes[i].weight > weight) {
         memcpy(&nodes[i + 1], &nodes[i], sizeof(node_t));
         if (nodes[i].index < 0)
@@ -105,7 +107,7 @@ int add_node(int index, int weight) {
             ++parent_index[nodes[i].index];
         --i;
     }
-	/* add new node to correct place */
+    /* add new node to correct place */
     ++i;
     nodes[i].index = index;
     nodes[i].weight = weight;
@@ -117,7 +119,8 @@ int add_node(int index, int weight) {
     return i;
 }
 
-void add_leaves() {
+void add_leaves()
+{
     int i, freq;
     for (i = 0; i < num_alphabets; ++i) {
         freq = frequency[i];
@@ -126,27 +129,27 @@ void add_leaves() {
     }
 }
 
-void build_tree() {
+void build_tree()
+{
     int a, b, index;
     while (free_index < num_nodes) {
         a = free_index++;
         b = free_index++;
-        index = add_node(b/2,
-            nodes[a].weight + nodes[b].weight);
-        parent_index[b/2] = index;
+        index = add_node(b / 2, nodes[a].weight + nodes[b].weight);
+        parent_index[b / 2] = index;
     }
 }
 
-void print_freq(){
-	for (int i=0; i<num_alphabets; ++i){
-		printf("unsigned int: %d, freq: %d\n",i,frequency[i]);
-	}	
+void print_freq()
+{
+    for (int i = 0; i < num_alphabets; ++i) {
+        printf("unsigned int: %d, freq: %d\n", i, frequency[i]);
+    }
 }
-void print_node(){
-    
-}
+void print_node() {}
 
-int encode(const char* ifile, const char *ofile) {
+int encode(const char *ifile, const char *ofile)
+{
     FILE *fin, *fout;
     if ((fin = fopen(ifile, "rb")) == NULL) {
         perror("Failed to open input file");
@@ -164,7 +167,7 @@ int encode(const char* ifile, const char *ofile) {
     add_leaves();
     write_header(fout);
     build_tree();
-    fseek(fin, 0, SEEK_SET);	// rewind
+    fseek(fin, 0, SEEK_SET);  // rewind
     print_freq();
     int c;
     while ((c = fgetc(fin)) != EOF)
@@ -177,7 +180,8 @@ int encode(const char* ifile, const char *ofile) {
     return 0;
 }
 
-void encode_alphabet(FILE *fout, int character) {
+void encode_alphabet(FILE *fout, int character)
+{
     int node_index;
     stack_top = 0;
     node_index = leaf_index[character + 1];
@@ -189,7 +193,8 @@ void encode_alphabet(FILE *fout, int character) {
         write_bit(fout, stack[stack_top]);
 }
 
-int decode(const char* ifile, const char *ofile) {
+int decode(const char *ifile, const char *ofile)
+{
     FILE *fin, *fout;
     if ((fin = fopen(ifile, "rb")) == NULL) {
         perror("Failed to open input file");
@@ -200,7 +205,7 @@ int decode(const char* ifile, const char *ofile) {
         fclose(fin);
         return FILE_OPEN_FAIL;
     }
-    
+
     if (read_header(fin) == 0) {
         build_tree();
         decode_bit_stream(fin, fout);
@@ -211,7 +216,8 @@ int decode(const char* ifile, const char *ofile) {
     return 0;
 }
 
-void decode_bit_stream(FILE *fin, FILE *fout) {
+void decode_bit_stream(FILE *fin, FILE *fout)
+{
     int i = 0, bit, node_index = nodes[num_nodes].index;
     while (1) {
         bit = read_bit(fin);
@@ -228,27 +234,25 @@ void decode_bit_stream(FILE *fin, FILE *fout) {
     }
 }
 
-int write_bit(FILE *f, int bit) {
+int write_bit(FILE *f, int bit)
+{
     if (bits_in_buffer == MAX_BUFFER_SIZE << 3) {
-        size_t bytes_written =
-            fwrite(buffer, 1, MAX_BUFFER_SIZE, f);
+        size_t bytes_written = fwrite(buffer, 1, MAX_BUFFER_SIZE, f);
         if (bytes_written < MAX_BUFFER_SIZE && ferror(f))
             return INVALID_BIT_WRITE;
         bits_in_buffer = 0;
         memset(buffer, 0, MAX_BUFFER_SIZE);
     }
     if (bit)
-        buffer[bits_in_buffer >> 3] |=
-            (0x1 << (7 - bits_in_buffer % 8));
+        buffer[bits_in_buffer >> 3] |= (0x1 << (7 - bits_in_buffer % 8));
     ++bits_in_buffer;
     return SUCCESS;
 }
 
-int flush_buffer(FILE *f) {
+int flush_buffer(FILE *f)
+{
     if (bits_in_buffer) {
-        size_t bytes_written =
-            fwrite(buffer, 1,
-                (bits_in_buffer + 7) >> 3, f);
+        size_t bytes_written = fwrite(buffer, 1, (bits_in_buffer + 7) >> 3, f);
         if (bytes_written < MAX_BUFFER_SIZE && ferror(f))
             return -1;
         bits_in_buffer = 0;
@@ -256,13 +260,13 @@ int flush_buffer(FILE *f) {
     return 0;
 }
 
-int read_bit(FILE *f) {
+int read_bit(FILE *f)
+{
     if (current_bit == bits_in_buffer) {
         if (eof_input)
             return END_OF_FILE;
         else {
-            size_t bytes_read =
-                fread(buffer, 1, MAX_BUFFER_SIZE, f);
+            size_t bytes_read = fread(buffer, 1, MAX_BUFFER_SIZE, f);
             if (bytes_read < MAX_BUFFER_SIZE) {
                 if (feof(f))
                     eof_input = 1;
@@ -274,91 +278,86 @@ int read_bit(FILE *f) {
 
     if (bits_in_buffer == 0)
         return END_OF_FILE;
-    int bit = (buffer[current_bit >> 3] >>
-        (7 - current_bit % 8)) & 0x1;
+    int bit = (buffer[current_bit >> 3] >> (7 - current_bit % 8)) & 0x1;
     ++current_bit;
     return bit;
 }
 
-int write_header(FILE *f) {
-     int i, j, byte = 0,
-         size = sizeof(unsigned int) + 1 +
-              num_active * (1 + sizeof(int));
-     unsigned int weight;
-     char *buffer = (char *) calloc(size, 1);
-     if (buffer == NULL)
-         return MEM_ALLOC_FAIL;
+int write_header(FILE *f)
+{
+    int i, j, byte = 0,
+              size = sizeof(unsigned int) + 1 + num_active * (1 + sizeof(int));
+    unsigned int weight;
+    char *buffer = (char *) calloc(size, 1);
+    if (buffer == NULL)
+        return MEM_ALLOC_FAIL;
 
-     j = sizeof(int);
-     while (j--)
-         buffer[byte++] =
-             (original_size >> (j << 3)) & 0xff;
-     buffer[byte++] = (char) num_active;
-     for (i = 1; i <= num_active; ++i) {
-         weight = nodes[i].weight;
-         buffer[byte++] =
-             (char) (-nodes[i].index - 1);
-         j = sizeof(int);
-         while (j--)
-             buffer[byte++] =
-                 (weight >> (j << 3)) & 0xff;
-     }
-     fwrite(buffer, 1, size, f);
-     free(buffer);
-     return 0;
+    j = sizeof(int);
+    while (j--)
+        buffer[byte++] = (original_size >> (j << 3)) & 0xff;
+    buffer[byte++] = (char) num_active;
+    for (i = 1; i <= num_active; ++i) {
+        weight = nodes[i].weight;
+        buffer[byte++] = (char) (-nodes[i].index - 1);
+        j = sizeof(int);
+        while (j--)
+            buffer[byte++] = (weight >> (j << 3)) & 0xff;
+    }
+    fwrite(buffer, 1, size, f);
+    free(buffer);
+    return 0;
 }
 
-int read_header(FILE *f) {
-     int i, j, byte = 0, size;
-     size_t bytes_read;
-     unsigned char buff[4];
+int read_header(FILE *f)
+{
+    int i, j, byte = 0, size;
+    size_t bytes_read;
+    unsigned char buff[4];
 
-     bytes_read = fread(&buff, 1, sizeof(int), f);
-     if (bytes_read < 1)
-         return END_OF_FILE;
-     byte = 0;
-     original_size = buff[byte++];
-     while (byte < sizeof(int))
-         original_size =
-             (original_size << (1 << 3)) | buff[byte++];
+    bytes_read = fread(&buff, 1, sizeof(int), f);
+    if (bytes_read < 1)
+        return END_OF_FILE;
+    byte = 0;
+    original_size = buff[byte++];
+    while (byte < sizeof(int))
+        original_size = (original_size << (1 << 3)) | buff[byte++];
 
-     bytes_read = fread(&num_active, 1, 1, f);
-     if (bytes_read < 1)
-         return END_OF_FILE;
+    bytes_read = fread(&num_active, 1, 1, f);
+    if (bytes_read < 1)
+        return END_OF_FILE;
 
-     allocate_tree();
+    allocate_tree();
 
-     size = num_active * (1 + sizeof(int));
-     unsigned int weight;
-     char *buffer = (char *) calloc(size, 1);
-     if (buffer == NULL)
-         return MEM_ALLOC_FAIL;
-     fread(buffer, 1, size, f);
-     byte = 0;
-     for (i = 1; i <= num_active; ++i) {
-         nodes[i].index = -(buffer[byte++] + 1);
-         j = 0;
-         weight = (unsigned char) buffer[byte++];
-         while (++j < sizeof(int)) {
-             weight = (weight << (1 << 3)) |
-                 (unsigned char) buffer[byte++];
-         }
-         nodes[i].weight = weight;
-     }
-     num_nodes = (int) num_active;
-     free(buffer);
-     return 0;
+    size = num_active * (1 + sizeof(int));
+    unsigned int weight;
+    char *buffer = (char *) calloc(size, 1);
+    if (buffer == NULL)
+        return MEM_ALLOC_FAIL;
+    fread(buffer, 1, size, f);
+    byte = 0;
+    for (i = 1; i <= num_active; ++i) {
+        nodes[i].index = -(buffer[byte++] + 1);
+        j = 0;
+        weight = (unsigned char) buffer[byte++];
+        while (++j < sizeof(int)) {
+            weight = (weight << (1 << 3)) | (unsigned char) buffer[byte++];
+        }
+        nodes[i].weight = weight;
+    }
+    num_nodes = (int) num_active;
+    free(buffer);
+    return 0;
 }
 
-
-
-void print_help() {
-      fprintf(stderr,
-          "USAGE: ./huffman [encode | decode] "
-          "<input out> <output file>\n");
+void print_help()
+{
+    fprintf(stderr,
+            "USAGE: ./huffman [encode | decode] "
+            "<input out> <output file>\n");
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     if (argc != 4) {
         print_help();
         return FAILURE;
@@ -373,5 +372,3 @@ int main(int argc, char **argv) {
     finalise();
     return SUCCESS;
 }
-
-
