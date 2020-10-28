@@ -1,4 +1,3 @@
-/* Copyright 2016 Gagarine Yaikhom (MIT License) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
