@@ -137,6 +137,14 @@ void build_tree() {
     }
 }
 
+void print_freq(){
+	for (int i=0; i<num_alphabets; ++i){
+		printf("unsigned int: %d, freq: %d\n",i,frequency[i]);
+	}	
+}
+void print_node(){
+    
+}
 
 int encode(const char* ifile, const char *ofile) {
     FILE *fin, *fout;
@@ -157,6 +165,7 @@ int encode(const char* ifile, const char *ofile) {
     write_header(fout);
     build_tree();
     fseek(fin, 0, SEEK_SET);	// rewind
+    print_freq();
     int c;
     while ((c = fgetc(fin)) != EOF)
         encode_alphabet(fout, c);
@@ -191,9 +200,7 @@ int decode(const char* ifile, const char *ofile) {
         fclose(fin);
         return FILE_OPEN_FAIL;
     }
-	// add signature back to file head
-	
-
+    
     if (read_header(fin) == 0) {
         build_tree();
         decode_bit_stream(fin, fout);
