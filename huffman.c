@@ -24,7 +24,7 @@ unsigned int original_size = 0;
 
 typedef struct {
     int index; /* positive index means internal node;
-                                  negative index means a leaf (alphabet) node */
+                  negative index means a leaf (alphabet) node */
     unsigned int weight;
 } node_t;
 
@@ -33,7 +33,7 @@ int num_nodes = 0;
 int *leaf_index = NULL;
 int *parent_index = NULL;
 
-int free_index = 1;
+int free_index = 1; /* to track the next two nodes to combine */
 
 int *stack;
 int stack_top;
@@ -140,6 +140,7 @@ void build_tree()
     }
 }
 
+// for debug use
 void print_freq()
 {
     for (int i = 0; i < num_alphabets; ++i) {
@@ -160,11 +161,12 @@ int encode(const char *ifile, const char *ofile)
         fclose(fin);
         return FILE_OPEN_FAIL;
     }
+
     determine_frequency(fin);
     stack = (int *) calloc(num_active - 1, sizeof(int));
     allocate_tree();
-
     add_leaves();
+
     write_header(fout);
     build_tree();
     fseek(fin, 0, SEEK_SET);  // rewind
