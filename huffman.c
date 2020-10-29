@@ -30,7 +30,7 @@ typedef struct {
 
 node_t *nodes = NULL;
 int num_nodes = 0;
-int *leaf_index = NULL;
+int *leaf_index = NULL; /* leaf to node lookup table */
 int *parent_index = NULL;
 
 int free_index = 1; /* to track the next two nodes to combine */
